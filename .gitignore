@@ -1,0 +1,6 @@
+# vendor related
+vendor/*/
+!vendor/vendor.json
+
+.env*
+.DS_Store
