@@ -85,6 +85,24 @@
 			"path": "gopkg.in/mgo.v2/internal/json",
 			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
 			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "+1WDRPaOphSCmRMxVPIPBV4aubc=",
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "vJ/9rRDsrnbF6RuzieNz87WfxPo=",
+			"path": "gopkg.in/osteele/liquid.v1",
+			"revision": "e0ae1590bfe2584ce1146f3238f0a4f055b7fd3f",
+			"revisionTime": "2018-06-05T20:36:56Z"
+		},
+		{
+			"checksumSHA1": "CzLpoHWYgSP+mT3bcW/jt8epp5I=",
+			"path": "gopkg.in/robfig/cron.v2",
+			"revision": "be2e0b0deed5a68ffee390b4583a13aff8321535",
+			"revisionTime": "2015-01-07T22:02:07Z"
 		}
 	],
 	"rootPath": "github.com/abidnurulhakim/jarpeace"
