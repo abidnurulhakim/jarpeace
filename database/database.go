@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -79,6 +80,7 @@ func (db *MongoDB) CreateMessage(message *model.Message) error {
 
 func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 	data := make(map[string]interface{})
+	text := ""
 	if message.Content != "" {
 		arr := strings.SplitN(message.Content, " ", 2)
 		arr2 := strings.SplitN(arr[0], "@"+os.Getenv("TELEGRAM_BOT_USERNAME"), 2)
@@ -88,17 +90,20 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 		} else {
 			command = arr[0]
 		}
+		if len(arr) > 1 {
+			text = arr[1]
+		}
 		if string(command[0]) == "/" {
-			text := command
 			arr3 := strings.SplitN(command, "/", 2)
+			fmt.Println(arr3)
 			if arr3[1] == "reminderadd" {
 				if text == "" {
-					return false, "Format invalid for command `reminderadd`"
+					return false, "Invalid format. Please check `/reminderadd help`"
 				}
 				params := strings.Split(text, ";")
 				if len(params) == 1 {
 					if params[0] != "help" {
-						return false, "Format invalid for command `reminderadd`"
+						return false, "Invalid format. Please check `/reminderadd help`"
 					} else {
 						return true, "/reminderadd `SCHEDULE;REMINDER_CONTENT;var1;var2;...`\n`SCHEDULE: minute hour day month years` (cron format) (http://www.adminschoice.com/crontab-quick-reference)\n`REMINDER_CONTENT` can fill with liquid template (https://github.com/Shopify/liquid/wiki/Liquid-for-Designers)\n`var1`...`varN` is additional data that can use in `REMINDER CONTENT`"
 					}
@@ -127,9 +132,9 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 					return true, "/reminderactive `REMINDER_ID`\n`REMINDER_ID`: ID reminder was created"
 				}
 				if !bson.IsObjectIdHex(text) {
-					return false, "Format invalid for command `reminderactive`"
+					return false, "Invalid format. Please check `/reminderactive help`"
 				}
-				reminders, err := db.GetReminders(bson.M{"_id": bson.ObjectIdHex(text)})
+				reminders, err := db.GetReminders(bson.M{"_id": bson.ObjectIdHex(text), "chat_id": message.ChatID})
 				if err != nil {
 					return false, err.Error()
 				}
@@ -149,7 +154,7 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 					return true, "/reminderactive `REMINDER_ID`\n`REMINDER_ID`: ID reminder was created"
 				}
 				if !bson.IsObjectIdHex(text) {
-					return false, "Format invalid for command `reminderinactive`"
+					return false, "Invalid format. Please check `/reminderinactive help`"
 				}
 				reminders, err := db.GetReminders(bson.M{"_id": bson.ObjectIdHex(text), "chat_id": message.ChatID})
 				if err != nil {
@@ -166,14 +171,28 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 				}
 				return true, "Reminder with ID: `" + reminder.ID.Hex() + "` inactive"
 			}
+			if arr3[1] == "reminderlist" {
+				reminders, err := db.GetReminders(bson.M{"chat_id": message.ChatID})
+				if err != nil {
+					return false, err.Error()
+				}
+				if len(reminders) == 0 {
+					return false, "There are no reminder."
+				}
+				str := ""
+				for i := 0; i < len(reminders); i++ {
+					str += strconv.Itoa(i+1) + ". ID: `" + reminders[i].ID.Hex() + "`\n    ACTIVE: `" + strconv.FormatBool(reminders[i].Active) + "`\n    Schedule: `" + reminders[i].Schedule + "`\n"
+				}
+				return true, str
+			}
 			if arr3[1] == "autoreplyadd" {
 				if text == "" {
-					return false, "Format invalid for command `autoreplyadd`"
+					return false, "Invalid format. Please check `/autoreplyadd help`"
 				}
 				params := strings.Split(text, ";")
 				if len(params) == 1 {
 					if params[0] != "help" {
-						return false, "Format invalid for command `autoreplyadd`"
+						return false, "Invalid format. Please check `/autoreplyadd help`"
 					} else {
 						return true, "/autoreplyadd `TEXT;ANSWER;var1;var2;...`\n`TEXT`: text will autoreply by bot\n`ANSWER`: answer that bot will give. It can fill with liquid template (https://github.com/Shopify/liquid/wiki/Liquid-for-Designers)\n`var1`...`varN` is additional data that can use in `ANSWER`"
 					}
@@ -202,9 +221,9 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 					return true, "/autoreplyactive `AUTOREPLY_ID`\n`AUTOREPLY_ID`: ID auto reply was created"
 				}
 				if !bson.IsObjectIdHex(text) {
-					return false, "Format invalid for command `autoreplyactive`"
+					return false, "Invalid format. Please check `/autoreplyactive help`"
 				}
-				autoReplies, err := db.GetAutoReplies(bson.M{"_id": bson.ObjectIdHex(text)})
+				autoReplies, err := db.GetAutoReplies(bson.M{"_id": bson.ObjectIdHex(text), "chat_id": message.ChatID})
 				if err != nil {
 					return false, err.Error()
 				}
@@ -224,9 +243,9 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 					return true, "/autoreplyinactive `REMINDER_ID`\n`REMINDER_ID`: ID reminder was created"
 				}
 				if !bson.IsObjectIdHex(text) {
-					return false, "Format invalid for command `autoreplyinactive`"
+					return false, "Invalid format. Please check `/autoreplyinactive help`"
 				}
-				autoReplies, err := db.GetAutoReplies(bson.M{"_id": bson.ObjectIdHex(text)})
+				autoReplies, err := db.GetAutoReplies(bson.M{"_id": bson.ObjectIdHex(text), "chat_id": message.ChatID})
 				if err != nil {
 					return false, err.Error()
 				}
@@ -241,23 +260,41 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 				}
 				return true, "Auto reply with ID: `" + autoReply.ID.Hex() + "` inactive"
 			}
-		} else {
-			autoReplies, _ := db.GetAutoReplies(bson.M{"text": bson.M{"$regex": `^` + message.Content}})
-			if len(autoReplies) > 0 {
-				autoReply := autoReplies[0]
-				engine := liquid.NewEngine()
-				template := autoReply.Answer
-				bindings := autoReply.Data
-				bindings["now"] = time.Now()
-				bindings["username"] = message.Username
-				out, errLiquid := engine.ParseAndRenderString(template, bindings)
-				if errLiquid != nil {
-					autoReply.Active = false
-					db.UpdateAutoReply(&autoReply)
-					return false, errLiquid.Cause().Error()
-				} else {
-					return true, out
+			if arr3[1] == "autoreplylist" {
+				autoReplies, err := db.GetAutoReplies(bson.M{"chat_id": message.ChatID})
+				if err != nil {
+					return false, err.Error()
 				}
+				if len(autoReplies) == 0 {
+					return false, "There are no auto reply."
+				}
+				str := ""
+				for i := 0; i < len(autoReplies); i++ {
+					str += strconv.Itoa(i+1) + ". ID: `" + autoReplies[i].ID.Hex() + "`\n    ACTIVE: `" + strconv.FormatBool(autoReplies[i].Active) + "`\n    TEXT: `" + autoReplies[i].Text + "`\n    ANSWER: `" + autoReplies[i].Answer + "`\n"
+				}
+				return true, str
+			}
+		} else {
+			autoReplies, _ := db.GetAutoReplies(bson.M{"active": true, "chat_id": message.ChatID})
+			if len(autoReplies) > 0 {
+				str := ""
+				for _, autoReply := range autoReplies {
+					if strings.Contains(strings.ToLower(message.Content), autoReply.Text) {
+						engine := liquid.NewEngine()
+						template := autoReply.Answer
+						bindings := autoReply.Data
+						bindings["now"] = time.Now()
+						bindings["username"] = message.Username
+						out, errLiquid := engine.ParseAndRenderString(template, bindings)
+						if errLiquid != nil {
+							autoReply.Active = false
+							db.UpdateAutoReply(&autoReply)
+						} else {
+							str += out + "\n"
+						}
+					}
+				}
+				return true, str
 			}
 		}
 	}
