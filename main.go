@@ -99,7 +99,6 @@ func RunReminders() {
 		bindings["now"] = time.Now()
 		out, err := engine.ParseAndRenderString(template, bindings)
 		if err != nil {
-			log.Fatalln(err)
 			message.Text = validReminder.Content
 		} else {
 			message.Text = out
