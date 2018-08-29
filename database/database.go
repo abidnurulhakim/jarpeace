@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -91,11 +90,10 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 			command = arr[0]
 		}
 		if len(arr) > 1 {
-			text = arr[1]
+			text = strings.TrimSpace(arr[1])
 		}
 		if string(command[0]) == "/" {
 			arr3 := strings.SplitN(command, "/", 2)
-			fmt.Println(arr3)
 			if arr3[1] == "reminderadd" {
 				if text == "" {
 					return false, "Invalid format. Please check `/reminderadd help`"
@@ -105,7 +103,7 @@ func (db *MongoDB) ProcessMessage(message *model.Message) (bool, string) {
 					if params[0] != "help" {
 						return false, "Invalid format. Please check `/reminderadd help`"
 					} else {
-						return true, "/reminderadd `SCHEDULE;REMINDER_CONTENT;var1;var2;...`\n`SCHEDULE: minute hour day month years` (cron format) (http://www.adminschoice.com/crontab-quick-reference)\n`REMINDER_CONTENT` can fill with liquid template (https://github.com/Shopify/liquid/wiki/Liquid-for-Designers)\n`var1`...`varN` is additional data that can use in `REMINDER CONTENT`"
+						return true, "/reminderadd `SCHEDULE;REMINDER_CONTENT;var1;var2;...`\n`SCHEDULE: minute hour day month day_of_week` (cron format) (http://www.adminschoice.com/crontab-quick-reference)\n`REMINDER_CONTENT` can fill with liquid template (https://github.com/Shopify/liquid/wiki/Liquid-for-Designers)\n`var1`...`varN` is additional data that can use in `REMINDER CONTENT`"
 					}
 				}
 				reminder := model.Reminder{}
