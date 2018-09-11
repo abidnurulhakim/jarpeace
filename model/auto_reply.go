@@ -7,9 +7,7 @@ import (
 )
 
 type AutoReply struct {
-	ID        bson.ObjectId          `mgorm:"primary_key" bson:"_id,omitempty" json:"id"`
-	UpdatedAt time.Time              `bson:"updated_at,omitempty" json:"updated_at"`
-	CreatedAt time.Time              `mgorm:"index" bson:"created_at,omitempty" json:"created_at"`
+	ID        bson.ObjectId          `bson:"_id,omitempty" json:"id"`
 	Text      string                 `bson:"text" json:"text"`
 	Answer    string                 `bson:"answer" json:"answer"`
 	Data      map[string]interface{} `bson:"data" json:"data"`
@@ -17,6 +15,8 @@ type AutoReply struct {
 	ChatID    int                    `bson:"chat_id" json:"chat_id"`
 	UserID    int                    `bson:"user_id" json:"user_id"`
 	Username  string                 `bson:"username" json:"username"`
+	UpdatedAt time.Time              `bson:"updated_at,omitempty" json:"updated_at"`
+	CreatedAt time.Time              `bson:"created_at,omitempty" json:"created_at"`
 }
 
 func NewAutoReply() AutoReply {

@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/abidnurulhakim/jarpeace/channel"
+	"github.com/abidnurulhakim/jarpeace/command"
 	"github.com/abidnurulhakim/jarpeace/database"
 	"github.com/abidnurulhakim/jarpeace/helper"
 	"github.com/abidnurulhakim/jarpeace/model"
@@ -33,7 +34,7 @@ func (handler *Handler) CreateReminder(w http.ResponseWriter, r *http.Request, p
 	db := handler.Db.Copy()
 	defer db.Close()
 	json.NewDecoder(r.Body).Decode(&params)
-	reminder := model.NewReminder()
+	reminder := model.NewReminder("")
 	decoder, err := helper.GetDecoder(&reminder)
 	if err == nil {
 		err = decoder.Decode(params)
@@ -53,7 +54,7 @@ func (handler *Handler) Webhook(w http.ResponseWriter, r *http.Request, ps httpr
 	if err == nil {
 		err = decoder.Decode(params)
 	}
-	message := model.Message{}
+	message := model.NewMessage()
 	message.ChatID = resourceTelegram.Message.Chat.Id
 	message.UserID = resourceTelegram.Message.From.Id
 	message.Username = "@" + resourceTelegram.Message.From.Username
@@ -119,13 +120,23 @@ func FetchUrlQueryBoolean(values url.Values, key string, defaultValue bool) bool
 func MessageWebhookProcess(db *database.MongoDB, message *model.Message) {
 	defer db.Close()
 	telegram := channel.Telegram{Token: os.Getenv("TELEGRAM_TOKEN")}
-	messageParam := channel.TelegramParamMessageText{}
-	messageParam.ChatId = strconv.Itoa(message.ChatID)
-	messageParam.ReplyToMessageId = message.MessageID
-	messageParam.ParseMode = "markdown"
-	_, txt := db.ProcessMessage(message)
-	if txt != "" {
-		messageParam.Text = txt
+	texts, err := command.Run(db, *message)
+	if err != nil {
+		messageParam := channel.TelegramParamMessageText{}
+		messageParam.ChatId = strconv.Itoa(message.ChatID)
+		messageParam.ReplyToMessageId = message.MessageID
+		messageParam.ParseMode = "markdown"
+		messageParam.Text = err.Error()
 		telegram.SendMessage(messageParam)
+	} else {
+		for i := 0; i < len(texts); i++ {
+			text := texts[i]
+			messageParam := channel.TelegramParamMessageText{}
+			messageParam.ChatId = strconv.Itoa(message.ChatID)
+			messageParam.ReplyToMessageId = message.MessageID
+			messageParam.ParseMode = "markdown"
+			messageParam.Text = text
+			telegram.SendMessage(messageParam)
+		}
 	}
 }

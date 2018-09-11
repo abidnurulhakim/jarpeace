@@ -5,7 +5,11 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/abidnurulhakim/carbon"
 	"github.com/mitchellh/mapstructure"
+	"github.com/olebedev/when"
+	"github.com/olebedev/when/rules/common"
+	"github.com/olebedev/when/rules/en"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -62,4 +66,16 @@ func RandInt(min int, max int) int {
 		}
 	}
 	return 0
+}
+
+func ParseHumanDatetime(raw string, dflt *carbon.Carbon) (*carbon.Carbon, error) {
+	w := when.New(nil)
+	w.Add(en.All...)
+	w.Add(common.All...)
+
+	r, err := w.Parse(raw, time.Now())
+	if r == nil || err != nil {
+		return dflt, err
+	}
+	return carbon.NewCarbon(r.Time), nil
 }

@@ -3,6 +3,18 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "A93P0DK/a3djIIhWBMDRa8AZRas=",
+			"path": "github.com/abidnurulhakim/carbon",
+			"revision": "6e5fa88101cf0a4cc85560259184908c32115e5a",
+			"revisionTime": "2018-09-11T02:09:17Z"
+		},
+		{
+			"checksumSHA1": "OxSGk0mbFx8bDbV5chzGa8t2rWQ=",
+			"path": "github.com/bcampbell/fuzzytime",
+			"revision": "6a03581b01a2b1647d35ccf849090b5036108e0c",
+			"revisionTime": "2017-06-19T08:44:47Z"
+		},
+		{
 			"checksumSHA1": "6IkE6hcpT+h38WXMWWIQ5YLih/U=",
 			"path": "github.com/gomarkdown/markdown",
 			"revision": "e790b0d6b80692ac5340b83ba0f261e8bdff17ad",
@@ -19,6 +31,12 @@
 			"path": "github.com/mitchellh/mapstructure",
 			"revision": "06020f85339e21b2478f756a78e295255ffa4d6a",
 			"revisionTime": "2017-10-17T17:18:08Z"
+		},
+		{
+			"checksumSHA1": "v/nHhTz9B1nC3Kcg/iKg4VTxpsQ=",
+			"path": "github.com/olebedev/when",
+			"revision": "53693fbb59a88d8eb5a214820c5ec1ea76d2460c",
+			"revisionTime": "2017-10-23T12:05:03Z"
 		},
 		{
 			"checksumSHA1": "CQ0FTORNiY1q+a3Zo8Df7aeiyTA=",
