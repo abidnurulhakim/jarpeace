@@ -13,9 +13,11 @@ import (
 	"github.com/abidnurulhakim/jarpeace/handler"
 	"github.com/abidnurulhakim/jarpeace/middleware"
 	"github.com/abidnurulhakim/jarpeace/model"
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/osteele/liquid"
 	"github.com/subosito/gotenv"
+	"go.uber.org/zap"
 	"gopkg.in/mgo.v2/bson"
 	cron "gopkg.in/robfig/cron.v2"
 )
@@ -91,6 +93,7 @@ func RunReminders() {
 		}
 	}
 	for _, validReminder := range validReminders {
+		start := time.Now()
 		engine := liquid.NewEngine()
 		telegram := channel.Telegram{Token: os.Getenv("TELEGRAM_TOKEN")}
 		message := channel.TelegramParamMessageText{}
@@ -99,6 +102,15 @@ func RunReminders() {
 		bindings["now"] = time.Now()
 		out, err := engine.ParseAndRenderString(template, bindings)
 		if err != nil {
+			logger, _ := zap.NewProduction()
+			elapsed := time.Since(start).Seconds() * 1000
+			elapsedStr := strconv.FormatFloat(elapsed, 'f', -1, 64)
+			requestId, _ := uuid.NewRandom()
+			logger.Error(err.Error(),
+				zap.String("request_id", requestId.String()),
+				zap.String("duration", elapsedStr),
+				zap.Strings("tags", []string{"render-liquid-template"}),
+			)
 			message.Text = validReminder.Content
 		} else {
 			message.Text = out
