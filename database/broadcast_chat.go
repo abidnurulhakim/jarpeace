@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/abidnurulhakim/carbon"
+	"github.com/abidnurulhakim/jarpeace/helper"
 	"github.com/abidnurulhakim/jarpeace/model"
-	"github.com/bukalapak/zinc/helper"
 	"gopkg.in/mgo.v2/bson"
 )
 
