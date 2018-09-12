@@ -42,7 +42,19 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 		if cmd.Content == "help" {
 			return []string{cmd.GetLeaveHelpList()}, nil
 		}
-		date, err := helper.ParseHumanDatetime(cmd.Content, carbon.Now().SubCentury())
+		startDate := carbon.Now().SubCentury()
+		endDate := carbon.Now().AddCentury()
+		arr := strings.SplitN(strings.ToLower(strings.TrimSpace(cmd.Content)), ";", 2)
+		var err error
+		if len(arr) > 0 {
+			startDate, err = helper.ParseHumanDatetime(arr[0], startDate)
+		}
+		if err != nil {
+			return []string{}, errors.New("Sorry, invalid date. Please check `/leave list help`")
+		}
+		if len(arr) > 1 {
+			endDate, err = helper.ParseHumanDatetime(arr[1], endDate)
+		}
 		if err != nil {
 			return []string{}, errors.New("Sorry, invalid date. Please check `/leave list help`")
 		}
@@ -55,7 +67,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 				userIDs = append(userIDs, group.UserID)
 			}
 		}
-		leaves, err := cmd.Client.GetLeaves(bson.M{"user_id": bson.M{"$in": userIDs}, "start": bson.M{"$lte": date.Time}, "end": bson.M{"$gte": date.Time}, "deleted_at": bson.M{"$exists": false}})
+		leaves, err := cmd.Client.GetLeaves(bson.M{"user_id": bson.M{"$in": userIDs}, "start": bson.M{"$gte": startDate.Time}, "end": bson.M{"$lte": endDate.Time}, "deleted_at": bson.M{"$exists": false}})
 		if len(leaves) == 0 {
 			return []string{"Sorry, there are no leaves. Please add new leave first."}, nil
 		}
@@ -102,7 +114,7 @@ func (cmd *Command) GetLeaveHelpBroadcast2Here() string {
 }
 
 func (cmd *Command) GetLeaveHelpList() string {
-	return "/leave list `DATE`\n`DATE`: Date what you want"
+	return "/leave list `START_DATE;END_DATE`\n`START_DATE`: Date what you want\n`END_DATE`: Date what you want"
 }
 
 func (cmd *Command) GetLeaveHelpRemove() string {
