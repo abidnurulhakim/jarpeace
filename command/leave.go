@@ -42,7 +42,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 		if cmd.Content == "help" {
 			return []string{cmd.GetLeaveHelpList()}, nil
 		}
-		date, err := helper.ParseHumanDatetime(cmd.Content, carbon.Now())
+		date, err := helper.ParseHumanDatetime(cmd.Content, carbon.Now().SubCentury())
 		if err != nil {
 			return []string{}, errors.New("Sorry, invalid date. Please check `/leave list help`")
 		}
@@ -94,7 +94,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 }
 
 func (cmd *Command) GetLeaveHelpAdd() string {
-	return "/leave add `TYPE;START_DATE;END_DATE;NOTE`\n`TYPE`: ['remote', 'cuti', 'sick']\n`START_DATE: Start date of your leave ex: (today, tommorow, 23/10/2018)`\n`END_DATE: End date of your leave ex: (today, tommorow, 23/10/2018)`\nNOTE: Note of your leave"
+	return "/leave add `TYPE;START_DATE;END_DATE;NOTE`\n`TYPE`: ['remote', 'cuti', 'sick']\n`START_DATE: Start date of your leave ex: (today, tomorrow, 23/10/2018)`\n`END_DATE: End date of your leave ex: (today, tomorrow, 23/10/2018)`\nNOTE: Note of your leave"
 }
 
 func (cmd *Command) GetLeaveHelpBroadcast2Here() string {
