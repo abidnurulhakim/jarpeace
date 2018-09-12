@@ -57,7 +57,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 		}
 		leaves, err := cmd.Client.GetLeaves(bson.M{"user_id": bson.M{"$in": userIDs}, "start": bson.M{"$lte": date.Time}, "end": bson.M{"$gte": date.Time}, "deleted_at": bson.M{"$exists": false}})
 		if len(leaves) == 0 {
-			return []string{"Sorry, there are not leave. Please add new leave first."}, nil
+			return []string{"Sorry, there are no leaves. Please add new leave first."}, nil
 		}
 		str := ""
 		for i := 0; i < len(leaves); i++ {

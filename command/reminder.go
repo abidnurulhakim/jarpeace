@@ -91,7 +91,7 @@ func (cmd *Command) RunRouteReminder() ([]string, error) {
 			return []string{}, err
 		}
 		if len(reminders) == 0 {
-			return []string{"Sorry, there are not reminder. Please add reminder first."}, nil
+			return []string{"Sorry, there are no reminders. Please add new reminder first."}, nil
 		}
 		str := ""
 		for i := 0; i < len(reminders); i++ {

@@ -1,5 +1,8 @@
 .PHONY: all
 
+OS = linux darwin windows
+CURRENT_GOOS = $(shell go env GOOS)
+
 pretty:
 	gofmt -w *.go
 
@@ -7,7 +10,8 @@ sync:
 	govendor sync
 
 compile: pretty sync
-	go build -o jarpeace main.go
+	$(foreach var, $(OS), GOOS=$(var) GOARCH=amd64 CGO_ENABLED=0 go build -o build/jarpeace-$(var)-amd64 main.go;)
 
 start: compile
-	./jarpeace
+	./build/jarpeace-$(CURRENT_GOOS)-amd64
+	
