@@ -42,7 +42,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 		if cmd.Content == "help" {
 			return []string{cmd.GetLeaveHelpList()}, nil
 		}
-		startDate := carbon.Now().SubCentury()
+		startDate := carbon.Now().StartOfDay()
 		endDate := carbon.Now().AddCentury()
 		arr := strings.SplitN(strings.ToLower(strings.TrimSpace(cmd.Content)), ";", 2)
 		var err error
@@ -67,7 +67,7 @@ func (cmd *Command) RunRouteLeave() ([]string, error) {
 				userIDs = append(userIDs, group.UserID)
 			}
 		}
-		leaves, err := cmd.Client.GetLeaves(bson.M{"user_id": bson.M{"$in": userIDs}, "start": bson.M{"$gte": startDate.Time}, "end": bson.M{"$lte": endDate.Time}, "deleted_at": bson.M{"$exists": false}})
+		leaves, err := cmd.Client.GetLeaves(bson.M{"user_id": bson.M{"$in": userIDs}, "start": bson.M{"$lte": endDate.Time}, "end": bson.M{"$gte": startDate.Time}, "deleted_at": bson.M{"$exists": false}})
 		if len(leaves) == 0 {
 			return []string{"Sorry, there are no leaves. Please add new leave first."}, nil
 		}

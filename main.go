@@ -17,6 +17,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/osteele/liquid"
 	"github.com/subosito/gotenv"
+	"github.com/uniplaces/carbon"
 	"go.uber.org/zap"
 	"gopkg.in/mgo.v2/bson"
 	cron "gopkg.in/robfig/cron.v2"
@@ -100,14 +101,20 @@ func RunReminders() {
 		template := validReminder.Content
 		bindings := validReminder.Data
 		bindings["now"] = time.Now()
+		leaveUsernames := []string{}
+		leaves, _ := db.GetLeaves(bson.M{"chat_id": validReminder.ChatID, "start": bson.M{"$lte": carbon.Now().EndOfDay()}, "end": bson.M{"$gte": carbon.Now().StartOfDay()}, "deleted_at": bson.M{"$exists": false}})
+		for _, leave := range leaves {
+			leaveUsernames = append(leaveUsernames, leave.Username[1:])
+		}
+		bindings["leave_usernames"] = leaveUsernames
 		out, err := engine.ParseAndRenderString(template, bindings)
 		if err != nil {
 			logger, _ := zap.NewProduction()
 			elapsed := time.Since(start).Seconds() * 1000
 			elapsedStr := strconv.FormatFloat(elapsed, 'f', -1, 64)
-			requestId, _ := uuid.NewRandom()
+			requestID, _ := uuid.NewRandom()
 			logger.Error(err.Error(),
-				zap.String("request_id", requestId.String()),
+				zap.String("request_id", requestID.String()),
 				zap.String("duration", elapsedStr),
 				zap.Strings("tags", []string{"render-liquid-template"}),
 			)
