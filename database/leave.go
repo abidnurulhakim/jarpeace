@@ -31,7 +31,7 @@ func (db *MongoDB) CreateLeave(leave *model.Leave) error {
 		return errors.New("End time must after start time")
 	}
 	c := db.Collection("leaves")
-	oldLeaves, _ := db.GetLeaves(bson.M{"user_id": leave.UserID, "start": bson.M{"$lte": leave.Start}, "end": bson.M{"$gte": leave.Start}})
+	oldLeaves, _ := db.GetLeaves(bson.M{"user_id": leave.UserID, "start": bson.M{"$lte": leave.Start}, "end": bson.M{"$gte": leave.Start}, "deleted_at": bson.M{"$exists": true}})
 	if len(oldLeaves) > 0 {
 		return errors.New("There are collision in your new leave")
 	}
@@ -60,6 +60,10 @@ func (db *MongoDB) UpdateLeave(leave *model.Leave) error {
 		return errors.New("End time must after start time")
 	}
 	c := db.Collection("leaves")
+	oldLeaves, _ := db.GetLeaves(bson.M{"user_id": leave.UserID, "start": bson.M{"$lte": leave.Start}, "end": bson.M{"$gte": leave.Start}, "deleted_at": bson.M{"$exists": true}, "_id": bson.M{"$ne": leave.Id}})
+	if len(oldLeaves) > 0 {
+		return errors.New("There are collision in your new leave")
+	}
 	info, err := c.Upsert(bson.M{"_id": leave.ID}, leave)
 	if info != nil && info.UpsertedId != nil {
 		leave.ID = info.UpsertedId.(bson.ObjectId)
