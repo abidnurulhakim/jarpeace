@@ -31,7 +31,7 @@ func (db *MongoDB) CreateLeave(leave *model.Leave) error {
 		return errors.New("End time must after start time")
 	}
 	c := db.Collection("leaves")
-	oldLeaves, _ := db.GetLeaves(bson.M{"user_id": leave.UserID, "start": bson.M{"$lte": leave.Start}, "end": bson.M{"$gte": leave.Start}, "deleted_at": bson.M{"$exists": true}})
+	oldLeaves, _ := db.GetLeaves(bson.M{"user_id": leave.UserID, "start": bson.M{"$lte": leave.Start.Time}, "end": bson.M{"$gte": leave.Start.Time}, "deleted_at": bson.M{"$exists": true}})
 	if len(oldLeaves) > 0 {
 		return errors.New("There are collision in your new leave")
 	}
