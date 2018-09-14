@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "A93P0DK/a3djIIhWBMDRa8AZRas=",
+			"checksumSHA1": "c9LltzkTzwOIzEwLB1bZhlvY2/Q=",
 			"path": "github.com/abidnurulhakim/carbon",
-			"revision": "6e5fa88101cf0a4cc85560259184908c32115e5a",
-			"revisionTime": "2018-09-11T02:09:17Z"
+			"revision": "4cb9107047913a4f18f0449e02ed23a04dc6426b",
+			"revisionTime": "2018-09-14T04:25:25Z"
 		},
 		{
 			"checksumSHA1": "OxSGk0mbFx8bDbV5chzGa8t2rWQ=",
@@ -41,6 +41,12 @@
 		{
 			"checksumSHA1": "CQ0FTORNiY1q+a3Zo8Df7aeiyTA=",
 			"path": "github.com/uniplaces/carbon",
+			"revision": "ac8e45a5852ea6b26fde38d7729b590d705c7087",
+			"revisionTime": "2018-06-25T10:45:39Z"
+		},
+		{
+			"checksumSHA1": "IM2n4GRYm5CjB0I9u/qpe43u8rg=",
+			"path": "github.com/uniplaces/carbon/lang",
 			"revision": "ac8e45a5852ea6b26fde38d7729b590d705c7087",
 			"revisionTime": "2018-06-25T10:45:39Z"
 		},
