@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "c9LltzkTzwOIzEwLB1bZhlvY2/Q=",
+			"checksumSHA1": "k+XGlXCtIASkV2idqhldBi6fye4=",
 			"path": "github.com/abidnurulhakim/carbon",
-			"revision": "4cb9107047913a4f18f0449e02ed23a04dc6426b",
-			"revisionTime": "2018-09-14T04:25:25Z"
+			"revision": "cf99d0ca3af552daf42e7dd76f359f25f93a1fc2",
+			"revisionTime": "2018-09-14T05:36:08Z"
 		},
 		{
 			"checksumSHA1": "OxSGk0mbFx8bDbV5chzGa8t2rWQ=",
