@@ -3,15 +3,15 @@ package database
 import (
 	"errors"
 	"strings"
-	"time"
 
+	"github.com/abidnurulhakim/carbon"
 	"github.com/abidnurulhakim/jarpeace/model"
 	"gopkg.in/mgo.v2/bson"
 )
 
 func (db *MongoDB) CreateAutoReply(autoReply *model.AutoReply) error {
 	var err error
-	now := time.Now()
+	now := carbon.Now()
 	autoReply.UpdatedAt = now
 	autoReply.CreatedAt = now
 	autoReply.Text = strings.ToLower(autoReply.Text)
@@ -34,7 +34,7 @@ func (db *MongoDB) CreateAutoReply(autoReply *model.AutoReply) error {
 
 func (db *MongoDB) UpdateAutoReply(autoReply *model.AutoReply) error {
 	var err error
-	now := time.Now()
+	now := carbon.Now()
 	autoReply.UpdatedAt = now
 	if autoReply.ID.Hex() == "" {
 		return errors.New("Must exists reminder")

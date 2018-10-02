@@ -9,12 +9,6 @@
 			"revisionTime": "2018-09-14T05:36:08Z"
 		},
 		{
-			"checksumSHA1": "OxSGk0mbFx8bDbV5chzGa8t2rWQ=",
-			"path": "github.com/bcampbell/fuzzytime",
-			"revision": "6a03581b01a2b1647d35ccf849090b5036108e0c",
-			"revisionTime": "2017-06-19T08:44:47Z"
-		},
-		{
 			"checksumSHA1": "6IkE6hcpT+h38WXMWWIQ5YLih/U=",
 			"path": "github.com/gomarkdown/markdown",
 			"revision": "e790b0d6b80692ac5340b83ba0f261e8bdff17ad",
