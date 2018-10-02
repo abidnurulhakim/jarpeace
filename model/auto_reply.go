@@ -1,8 +1,7 @@
 package model
 
 import (
-	"time"
-
+	"github.com/abidnurulhakim/carbon"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -15,11 +14,12 @@ type AutoReply struct {
 	ChatID    int                    `bson:"chat_id" json:"chat_id"`
 	UserID    int                    `bson:"user_id" json:"user_id"`
 	Username  string                 `bson:"username" json:"username"`
-	UpdatedAt time.Time              `bson:"updated_at,omitempty" json:"updated_at"`
-	CreatedAt time.Time              `bson:"created_at,omitempty" json:"created_at"`
+	UpdatedAt *carbon.Carbon         `bson:"updated_at,omitempty" json:"updated_at"`
+	CreatedAt *carbon.Carbon         `bson:"created_at,omitempty" json:"created_at"`
 }
 
 func NewAutoReply() AutoReply {
 	autoReply := AutoReply{}
+	autoReply.Active = true
 	return autoReply
 }
