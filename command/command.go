@@ -22,10 +22,10 @@ type CommandWorker interface {
 
 func Run(db *database.MongoDB, message model.Message) ([]string, error) {
 	if message.Content == "" {
-		return []string{}, errors.New(":thinking:")
+		return []string{}, errors.New("🤔")
 	}
 	if string(message.Content[0]) != "/" || message.Content == "/" {
-		return []string{}, errors.New(":thinking:")
+		return []string{}, errors.New("🤔")
 	}
 	tmp := strings.SplitN(message.Content, " ", 3)
 	commandName := strings.TrimSpace(string(tmp[0][1:]))
