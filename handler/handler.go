@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/abidnurulhakim/jarpeace/channel"
 	"github.com/abidnurulhakim/jarpeace/command"
@@ -14,6 +15,8 @@ import (
 	"github.com/abidnurulhakim/jarpeace/model"
 	"github.com/abidnurulhakim/jarpeace/response"
 	"github.com/julienschmidt/httprouter"
+	"github.com/osteele/liquid"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Handler struct {
@@ -58,6 +61,8 @@ func (handler *Handler) Webhook(w http.ResponseWriter, r *http.Request, ps httpr
 	message.ChatID = resourceTelegram.Message.Chat.Id
 	message.UserID = resourceTelegram.Message.From.Id
 	message.Username = "@" + resourceTelegram.Message.From.Username
+	message.FirstName = resourceTelegram.Message.From.FirstName
+	message.LastName = resourceTelegram.Message.From.LastName
 	message.MessageID = resourceTelegram.Message.MessageId
 	message.ReplyMessageID = resourceTelegram.Message.ReplyToMessage.MessageId
 	message.Content = resourceTelegram.Message.Text
@@ -120,23 +125,47 @@ func FetchUrlQueryBoolean(values url.Values, key string, defaultValue bool) bool
 func MessageWebhookProcess(db *database.MongoDB, message *model.Message) {
 	defer db.Close()
 	telegram := channel.Telegram{Token: os.Getenv("TELEGRAM_TOKEN")}
-	texts, err := command.Run(db, *message)
-	if err != nil {
-		messageParam := channel.TelegramParamMessageText{}
-		messageParam.ChatId = strconv.Itoa(message.ChatID)
-		messageParam.ReplyToMessageId = message.MessageID
-		messageParam.ParseMode = "markdown"
-		messageParam.Text = err.Error()
-		telegram.SendMessage(messageParam)
-	} else {
-		for i := 0; i < len(texts); i++ {
-			text := texts[i]
+	if message.IsCommand() {
+		texts, err := command.Run(db, *message)
+		if err != nil {
 			messageParam := channel.TelegramParamMessageText{}
 			messageParam.ChatId = strconv.Itoa(message.ChatID)
 			messageParam.ReplyToMessageId = message.MessageID
 			messageParam.ParseMode = "markdown"
-			messageParam.Text = text
+			messageParam.Text = err.Error()
 			telegram.SendMessage(messageParam)
+		} else {
+			for i := 0; i < len(texts); i++ {
+				text := texts[i]
+				messageParam := channel.TelegramParamMessageText{}
+				messageParam.ChatId = strconv.Itoa(message.ChatID)
+				messageParam.ReplyToMessageId = message.MessageID
+				messageParam.ParseMode = "markdown"
+				messageParam.Text = text
+				telegram.SendMessage(messageParam)
+			}
+		}
+	} else if message.Content != "" {
+		engine := liquid.NewEngine()
+		autoReplies, _ := db.GetAutoReplies(bson.M{"active": true, "deleted_at": bson.M{"$exists": false}, "chat_ids": bson.M{"$in": []int{0, message.ChatID}}})
+		for i := 0; i < len(autoReplies); i++ {
+			if autoReplies[i].Answer != "" {
+				bindings := autoReplies[i].Data
+				bindings["now"] = time.Now()
+				bindings["username"] = message.Username
+				bindings["first_name"] = message.FirstName
+				bindings["last_name"] = message.LastName
+				bindings["name"] = message.FirstName + " " + message.LastName
+				out, _ := engine.ParseAndRenderString(autoReplies[i].Answer, bindings)
+				messageParam := channel.TelegramParamMessageText{}
+				messageParam.ChatId = strconv.Itoa(message.ChatID)
+				messageParam.ReplyToMessageId = message.MessageID
+				messageParam.ParseMode = "markdown"
+				messageParam.Text = out
+				if out != "" {
+					telegram.SendMessage(messageParam)
+				}
+			}
 		}
 	}
 }

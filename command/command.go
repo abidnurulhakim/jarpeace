@@ -21,11 +21,8 @@ type CommandWorker interface {
 }
 
 func Run(db *database.MongoDB, message model.Message) ([]string, error) {
-	if message.Content == "" {
-		return []string{}, errors.New("🤔")
-	}
-	if string(message.Content[0]) != "/" || message.Content == "/" {
-		return []string{}, errors.New("🤔")
+	if !message.IsCommand() {
+		return []string{}, nil
 	}
 	tmp := strings.SplitN(message.Content, " ", 3)
 	commandName := strings.TrimSpace(string(tmp[0][1:]))
@@ -48,11 +45,13 @@ func Run(db *database.MongoDB, message model.Message) ([]string, error) {
 
 func (cmd *Command) Execute() ([]string, error) {
 	switch cmd.Name {
+	case "autoreply":
+		return cmd.RunRouteAutoReply()
 	case "leave":
 		return cmd.RunRouteLeave()
 	case "reminder":
 		return cmd.RunRouteReminder()
 	default:
-		return []string{}, errors.New("Command not found")
+		return []string{}, errors.New("🙏 Sorry, your command not found")
 	}
 }

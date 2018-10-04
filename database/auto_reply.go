@@ -18,14 +18,14 @@ func (db *MongoDB) CreateAutoReply(autoReply *model.AutoReply) error {
 	if autoReply.Text == "" {
 		return errors.New("Precondition text auto reply cannot be empty.")
 	}
-	if autoReply.Answer == "" {
+	if autoReply.Answer == "" && autoReply.IdenticalText == "" {
 		return errors.New("Answer auto reply cannot be empty.")
 	}
-	if autoReply.ChatID == 0 {
+	if len(autoReply.ChatIDs) == 0 {
 		return errors.New("Chat ID cannot be empty.")
 	}
 	c := db.Collection("auto_replies")
-	info, err := c.Upsert(bson.M{"chat_id": autoReply.ChatID, "created_at": autoReply.CreatedAt}, autoReply)
+	info, err := c.Upsert(bson.M{"user_id": autoReply.UserID, "created_at": autoReply.CreatedAt}, autoReply)
 	if info != nil && info.UpsertedId != nil {
 		autoReply.ID = info.UpsertedId.(bson.ObjectId)
 	}
@@ -45,7 +45,7 @@ func (db *MongoDB) UpdateAutoReply(autoReply *model.AutoReply) error {
 	if autoReply.Answer == "" {
 		return errors.New("Answer auto reply cannot be empty.")
 	}
-	if autoReply.ChatID == 0 {
+	if len(autoReply.ChatIDs) == 0 {
 		return errors.New("Chat ID cannot be empty.")
 	}
 	c := db.Collection("auto_replies")
