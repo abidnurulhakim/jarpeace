@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/abidnurulhakim/jarpeace/channel"
@@ -150,20 +151,26 @@ func MessageWebhookProcess(db *database.MongoDB, message *model.Message) {
 		autoReplies, _ := db.GetAutoReplies(bson.M{"active": true, "deleted_at": bson.M{"$exists": false}, "chat_ids": bson.M{"$in": []int{0, message.ChatID}}})
 		for i := 0; i < len(autoReplies); i++ {
 			if autoReplies[i].Answer != "" {
-				bindings := autoReplies[i].Data
-				bindings["now"] = time.Now()
-				bindings["username"] = message.Username
-				bindings["first_name"] = message.FirstName
-				bindings["last_name"] = message.LastName
-				bindings["name"] = message.FirstName + " " + message.LastName
-				out, _ := engine.ParseAndRenderString(autoReplies[i].Answer, bindings)
-				messageParam := channel.TelegramParamMessageText{}
-				messageParam.ChatId = strconv.Itoa(message.ChatID)
-				messageParam.ReplyToMessageId = message.MessageID
-				messageParam.ParseMode = "markdown"
-				messageParam.Text = out
-				if out != "" {
-					telegram.SendMessage(messageParam)
+				canAutoReply := message.IsMentionBot()
+				if message.ChatID == message.UserID {
+					canAutoReply = true
+				}
+				if canAutoReply && strings.Contains(strings.ToLower(message.Content), strings.ToLower(autoReplies[i].Text)) {
+					bindings := autoReplies[i].Data
+					bindings["now"] = time.Now()
+					bindings["username"] = message.Username
+					bindings["first_name"] = message.FirstName
+					bindings["last_name"] = message.LastName
+					bindings["name"] = message.FirstName + " " + message.LastName
+					out, _ := engine.ParseAndRenderString(autoReplies[i].Answer, bindings)
+					messageParam := channel.TelegramParamMessageText{}
+					messageParam.ChatId = strconv.Itoa(message.ChatID)
+					messageParam.ReplyToMessageId = message.MessageID
+					messageParam.ParseMode = "markdown"
+					messageParam.Text = out
+					if out != "" {
+						telegram.SendMessage(messageParam)
+					}
 				}
 			}
 		}

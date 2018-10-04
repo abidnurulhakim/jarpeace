@@ -1,6 +1,9 @@
 package model
 
 import (
+	"os"
+	"strings"
+
 	"github.com/abidnurulhakim/carbon"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -33,4 +36,8 @@ func (message Message) IsCommand() bool {
 		return false
 	}
 	return true
+}
+
+func (message Message) IsMentionBot() bool {
+	return strings.Contains(message.Content, os.Getenv("TELEGRAM_USERNAME_BOT"))
 }
