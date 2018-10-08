@@ -35,6 +35,9 @@ func (message Message) IsCommand() bool {
 	if string(message.Content[0]) != "/" || message.Content == "/" {
 		return false
 	}
+	if strings.Contains(message.Content, "@") && !message.IsMentionBot() {
+		return false
+	}
 	return true
 }
 
